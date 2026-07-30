@@ -1,0 +1,10 @@
+-- to open a frame using MOUSEBUTTONCLICK
+
+local Frame = script.Parent:WaitForChild("Frame")
+local OpenButton = script.Parent:WaitForChild("OpenButton")
+
+Frame.Visible = false
+
+OpenButton.MouseButton1Click:Connect(function()
+	Frame.Visible = true
+end)

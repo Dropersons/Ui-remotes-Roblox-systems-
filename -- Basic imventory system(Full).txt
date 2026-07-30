@@ -1,0 +1,91 @@
+-- Basic imventory system(Full)
+
+Script
+
+local replicatedStorage = game:GetService("ReplicatedStorage")
+local SendItem = replicatedStorage:WaitForChild("SendItem")
+local modelsFolder = replicatedStorage:WaitForChild("Models")
+local models = modelsFolder:GetChildren()
+
+local spawnPart = workspace:WaitForChild("SpwanPart")
+
+local inventory = {}
+local playercash = {}
+local itemPrices = {
+	Apple = 25,
+	Potion = 15,
+	Shield = 13,
+	Sword = 10
+}
+
+local function giveItem(player , itemName)
+	if not player then return end
+	
+	if not inventory[player] then
+		inventory[player] = {
+			Apple = 0,
+			Potion = 0,
+			Shield = 0,
+			Sword = 0
+		}
+	end
+	if not playercash[player] then
+		playercash[player] = 100
+	end
+	
+	if playercash[player] >= itemPrices[itemName] then
+		for _, model in ipairs(models) do
+			if model.Name == itemName then
+				local clone = model:Clone()
+				clone.Parent = workspace
+				clone.CFrame = spawnPart.CFrame + Vector3.new(0,5,0)
+				print(itemName .. " has dropped for ".. player.Name)
+			end
+		end
+		playercash[player] -= itemPrices[itemName]
+		inventory[player][itemName] += 1
+		print(player.Name .. " now has a " .. itemName)
+		print(player.Name .. " cash balence : " .. playercash[player])
+	else
+		print(player.Name .. " need " .. (itemPrices[itemName] - playercash[player]) .. " more ")
+	end
+	
+end
+
+SendItem.OnServerEvent:Connect(function(player , itemName)
+	giveItem(player , itemName)
+end)
+
+local script
+
+local replicatedStorage = game:GetService("ReplicatedStorage")
+local SendItem = replicatedStorage:WaitForChild("SendItem")
+
+local frame = script.Parent:WaitForChild("Frame")
+local buttons = frame:GetChildren()
+
+local OpenButton = script.Parent:WaitForChild("OpenButton")
+local closeButton = script.Parent:WaitForChild("CloseButton")
+local StatusLabel = script.Parent:WaitForChild("StatusLabel")
+
+frame.Visible = false
+
+local function OpenUi()
+	frame.Visible = true
+end
+
+local function closeUi()
+	frame.Visible = false
+end
+
+for _, button in ipairs(buttons) do
+	if button:IsA("ImageButton") then
+		button.MouseButton1Click:Connect(function()
+			SendItem:FireServer(button.Name)
+		end)
+	end
+end
+
+OpenButton.MouseButton1Click:Connect(OpenUi)
+closeButton.MouseButton1Click:Connect(closeUi)
+

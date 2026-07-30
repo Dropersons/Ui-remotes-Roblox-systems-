@@ -1,0 +1,154 @@
+
+ -- BasicDropperSystem
+
+Script
+
+local replicatedStorage = game:GetService("ReplicatedStorage")
+local BuyItem = replicatedStorage:WaitForChild("BuyItem")
+local UpdateCash = replicatedStorage:WaitForChild("UpdateCash")
+local tweenService = game:GetService("TweenService")
+local ore = replicatedStorage:WaitForChild("Ore")
+
+local Dropper = replicatedStorage:WaitForChild("Droppers")
+
+local tween = TweenInfo.new(
+	0.3,
+	Enum.EasingStyle.Sine,
+	Enum.EasingDirection.In,
+	0,
+	false,
+	0.1
+)
+
+local playerCash = {}
+local inventory = {}
+local itemCost = {
+	GreenDropper = 20,
+	GoldenDropper = 20,
+	BlueDropper = 20,
+	RedDropper = 20
+}
+
+local function giveItem(player , itemname)
+	if not player then return end
+	
+	if not playerCash[player]  then
+		playerCash[player] = 250
+	end
+	
+	if not inventory[player] then
+		inventory[player] = {
+			GreenDropper = 0,
+			GoldenDropper = 0,
+			BlueDropper = 0,
+			RedDropper = 0
+		}
+	end
+	
+	
+	if playerCash[player] >= itemCost[itemname] then
+		if inventory[player][itemname] == 1 then
+			print(player.Name .. " already owns " ..  itemname)
+			BuyItem:FireClient(player , itemname)
+			return
+		end
+		for _, DropperModel in ipairs(Dropper:GetChildren()) do
+			if itemname == DropperModel.Name then
+				local clone = DropperModel:Clone()
+				clone.Parent = workspace
+				-- clone:PivotTo(CFrame.new(-31.387, 3.985, 30.061))
+				local oreClone = ore:Clone()
+				for _, part in ipairs(clone:GetChildren()) do
+					if part:IsA("BasePart") then
+						local finalPosOfPart = part.Position
+
+						part.Position += Vector3.new(0,3,0)
+						local tweenAnim = tweenService:Create(part , tween , {Position = finalPosOfPart})
+						tweenAnim:Play()
+						
+					end
+					if part.Name == "Spawner" then
+						task.wait(0.5)
+						oreClone.Parent = workspace
+						oreClone.Position = part.Position - Vector3.new(0,3,0)
+					end
+					
+					if part.Name == "DestroyOre" then
+						part.Touched:Connect(function(hit)
+							if hit == oreClone then
+								oreClone:Destroy()
+							end
+						end)
+					end
+				end
+			end
+		end
+		
+		playerCash[player] -= itemCost[itemname]
+		inventory[player][itemname] += 1
+		
+		print(player.Name .. " no has a " .. itemname)
+		print(player.Name .. " cash balence : " ..  playerCash[player])
+		UpdateCash:FireClient(player , true ,  playerCash[player])
+		
+		
+	else
+		UpdateCash:FireClient(player , false ,  playerCash[player])
+		print(" Not enough cash ")
+	end
+end
+
+BuyItem.OnServerEvent:Connect(function(player , itemname)
+	giveItem(player , itemname)
+end)
+
+local script
+
+local replicatedStorage = game:GetService("ReplicatedStorage")
+local BuyItem = replicatedStorage:WaitForChild("BuyItem")
+local UpdateCash = replicatedStorage:WaitForChild("UpdateCash")
+
+local Frame = script.Parent:WaitForChild("Frame")
+local buttons = Frame:WaitForChild("Buttons")
+local CashText = script.Parent:WaitForChild("CashText")
+local OpenButton = script.Parent:WaitForChild("OpenButton")
+
+Frame.Visible = false
+
+local function openUi()
+	if Frame.Visible == true then
+		Frame.Visible = false
+		
+	else
+		Frame.Visible = true
+	end
+end
+
+for _, button in ipairs(buttons:GetChildren()) do
+	if button:IsA("ImageButton") then
+		button.MouseButton1Click:Connect(function()
+			BuyItem:FireServer(button.Name)
+		end)
+	end
+end
+
+
+OpenButton.MouseButton1Click:Connect(function()
+	openUi()
+end)
+
+UpdateCash.OnClientEvent:Connect(function(success , cash)
+	if success then
+		CashText.Text = " Cash : " .. cash
+	else
+		CashText.Text = " Not enough cash "
+	end
+end)
+
+BuyItem.OnClientEvent:Connect(function(itemname)
+	local button = buttons:FindFirstChild(itemname)
+	
+	if button then
+		button.ImageTransparency = 0.5
+	end
+end)

@@ -1,0 +1,72 @@
+-- open , close , buy , check  tables
+
+script
+
+local replicatedStorage = game:GetService("ReplicatedStorage")
+local BuySword = replicatedStorage:WaitForChild("BuySword")
+
+local playercash = {}
+
+local function buyItem(player)
+	if not player then return end
+	
+	if not playercash[player] then
+		playercash[player] = 100
+	end
+	
+	if playercash[player] >=25 then
+		playercash[player] = playercash[player] - 25
+		print(player.Name .. "now has" .. playercash[player] .. "cash")
+		print(player.Name .. "bought a sword")
+		
+	else
+		print("not enough cash")
+	end
+	
+end
+
+BuySword.OnServerEvent:Connect(function()
+	buyItem()
+end)
+
+local script
+
+local replicatedStorage = game:GetService("ReplicatedStorage")
+local BuySword = replicatedStorage:WaitForChild("BuySword")
+
+
+local Frame = script.Parent:WaitForChild("Frame")
+local BuyButton = Frame:WaitForChild("BuyButton")
+local Status = Frame:WaitForChild("StatusLabel")
+
+local OpenButton = script.Parent:WaitForChild("OpenButton")
+
+local closeButton = script.Parent:WaitForChild("CloseButton")
+
+
+Frame.Visible = false
+
+local function openUi()
+	Frame.Visible = true
+end
+
+local function closeUi()
+	Frame.Visible = false
+end
+
+local function buyButtonFunc()
+	Status.Text = "bought a sword"
+	BuySword:FireServer()
+end
+
+OpenButton.MouseButton1Click:Connect(function()
+	openUi()
+end)
+
+closeButton.MouseButton1Click:Connect(function(player)
+	closeUi()
+end)
+
+BuyButton.MouseButton1Click:Connect(function()
+	buyButtonFunc()
+end)

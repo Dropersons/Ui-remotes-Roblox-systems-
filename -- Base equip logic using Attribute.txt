@@ -1,0 +1,31 @@
+-- Base equip logic using Attributes
+
+local tycoon = workspace:WaitForChild("Tycoon")
+
+game.Players.PlayerAdded:Connect(function(player)
+	player:SetAttribute("HasBase" ,  false)
+end)
+
+for _, BaseEquip in ipairs(tycoon:GetChildren()) do
+	BaseEquip:SetAttribute("Owner" , "")
+	
+	BaseEquip.Touched:Connect(function(hit)
+		local player = game.Players:GetPlayerFromCharacter(hit.Parent)
+		if not player then return end
+		
+		if player:GetAttribute("HasBase" , false) then
+			return
+		end
+		
+		if BaseEquip:GetAttribute("Owner") ~= "" then
+			return
+		end
+		
+		player:SetAttribute("HasBase" , true)
+		BaseEquip:SetAttribute("Owner" , player.Name)
+		BaseEquip.Transparency = 1
+		BaseEquip.CanCollide = false
+		
+		print(player.Name .. " owns " .. BaseEquip.Name)
+	end)
+end

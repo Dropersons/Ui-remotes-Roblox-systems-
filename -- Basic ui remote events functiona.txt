@@ -1,0 +1,26 @@
+-- Basic ui remote events functionality
+
+Script
+
+local replicatedStorage = game:GetService("ReplicatedStorage")
+local ChangeColor = replicatedStorage:WaitForChild("ChangeColor")
+local part = workspace:WaitForChild("Cube")
+
+local function changeColorFunc()
+	part.Color = Color3.fromRGB(0, 255, 0)
+end
+
+ChangeColor.OnServerEvent:Connect(function(player)
+	changeColorFunc()
+end)
+
+local script
+
+local replicatedStorage = game:GetService("ReplicatedStorage")
+local ChangeColor = replicatedStorage:WaitForChild("ChangeColor")
+local GreenButton = script.Parent:WaitForChild("GreenButton")
+
+GreenButton.MouseButton1Click:Connect(function()
+	ChangeColor:FireServer()
+end)
+

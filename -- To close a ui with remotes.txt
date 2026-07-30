@@ -1,0 +1,32 @@
+-- To close a ui with remotes
+
+Script
+
+local replicatedStorage = game:GetService("ReplicatedStorage")
+
+local CloseUi = replicatedStorage:WaitForChild("CloseUi")
+
+local closePart = workspace:WaitForChild("Close")
+
+local function closeUiFunc(hit)
+	local player = game.Players:GetPlayerFromCharacter(hit.Parent)
+	if not player then return end
+	
+	CloseUi:FireClient(player)
+end
+
+closePart.Touched:Connect(closeUiFunc)
+
+local script
+
+local replicatedStorage = game:GetService("ReplicatedStorage")
+
+local CloseUi = replicatedStorage:WaitForChild("CloseUi")
+
+local frame = script.Parent:WaitForChild("Frame")
+
+frame.Visible = true
+
+CloseUi.OnClientEvent:Connect(function()
+	frame.Visible = false
+end)

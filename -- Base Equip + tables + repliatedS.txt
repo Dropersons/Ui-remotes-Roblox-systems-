@@ -1,0 +1,46 @@
+-- Base Equip + tables + repliatedStorageMachines
+
+Script
+
+local replicatedStorage = game:GetService("ReplicatedStorage")
+local machines = replicatedStorage:WaitForChild("Machines")
+local tycoon = workspace:WaitForChild("Tycoon")
+local TycoonOwners = {}
+
+game.Players.PlayerRemoving:Connect(function(player)
+	TycoonOwners[player] = nil
+end)
+
+local function machineSpawn(player)
+	if not TycoonOwners[player] then
+		return
+	end
+	
+	local machine = machines:WaitForChild("BlueDropper"):Clone()
+	machine.Parent = workspace
+end
+
+
+for _, BaseEquip in ipairs(tycoon:GetChildren()) do
+	 BaseEquip:SetAttribute("Owner" , "")
+	 BaseEquip.Touched:Connect(function(hit)
+			local player = game.Players:GetPlayerFromCharacter(hit.Parent)
+			if not player then return end
+			
+			if TycoonOwners[player] then
+				return
+			end
+			
+			if BaseEquip:GetAttribute("Owner") ~= "" then
+				return
+			end
+			
+			TycoonOwners[player] = BaseEquip
+			BaseEquip:SetAttribute("Owner" , player.Name)
+			BaseEquip.Transparency = 1
+			BaseEquip.CanCollide = false
+			
+			print(player.Name .. " base : " .. BaseEquip.Name)
+			machineSpawn(player)
+	 end)
+end

@@ -1,0 +1,16 @@
+-- Open and close Ui using same button
+
+local frame = script.Parent:WaitForChild("Frame")
+local ToggleButton = script.Parent:WaitForChild("ToggleButotn")
+
+local function OpenFunction()
+	if frame.Visible == true then
+		frame.Visible = false
+	else
+		frame.Visible = true
+	end
+end
+
+ToggleButton.MouseButton1Click:Connect(OpenFunction)
+
+

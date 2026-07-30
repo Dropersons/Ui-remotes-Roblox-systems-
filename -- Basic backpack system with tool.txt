@@ -1,0 +1,101 @@
+-- Basic backpack system with tool ( in hand )
+
+Script
+
+local replicatedStorage = game:GetService("ReplicatedStorage")
+local buyItem = replicatedStorage:WaitForChild("BuyItem")
+local CashUpdate = replicatedStorage:WaitForChild("CashUpdate")
+local models = replicatedStorage:WaitForChild("Models")
+
+local inventory = {}
+local playercash = {}
+local itemPrices = {
+	Apple = 20,
+	Potion = 50,
+	Shield = 75,
+	Sword = 100
+}
+
+local function giveItem(player , itemname)
+	if not player then return end
+	if not inventory[player] then
+		inventory[player] = {
+			Apple = 0,
+			Potion = 0,
+			Shield = 0,
+			Sword = 0
+		}
+	end
+	
+	
+	if not playercash[player] then
+		playercash[player] = 200
+	end
+	
+	if playercash[player] >= itemPrices[itemname] then
+		for _, model in ipairs(models:GetChildren()) do
+			if model.Name == itemname then
+				local clone = model:Clone()
+				clone.Grip = CFrame.new(0,0,1) * CFrame.Angles(0,0,math.rad(90))
+				clone.Parent = player.Backpack
+				local humanoid = player.Character:WaitForChild("Humanoid")
+
+				humanoid:EquipTool(clone)
+			end
+		end
+		playercash[player] -= itemPrices[itemname]
+		inventory[player][itemname] += 1
+		print(player.Name .. " now has " .. itemname)
+		print(player.Name .. " cash balence : " .. playercash[player])
+		CashUpdate:FireClient(player, true , playercash[player])
+		
+	else
+		CashUpdate:FireClient(player, false , playercash[player])
+		print(player.Name .. " need " .. (itemPrices[itemname] - playercash[player]) .. " more ")
+	end
+end
+
+buyItem.OnServerEvent:Connect(function(player,itemname)
+	giveItem(player , itemname)
+end)
+
+Local Script
+
+local replicatedStorage = game:GetService("ReplicatedStorage")
+local BuyItem = replicatedStorage:WaitForChild("BuyItem")
+local cashUpdate = replicatedStorage:WaitForChild("CashUpdate")
+
+
+local frame = script.Parent:WaitForChild("Frame")
+local Buttons = frame:WaitForChild("Buttons")
+local CashText = frame:WaitForChild("CashLabel")
+local OpenButton = script.Parent:WaitForChild("OpenButton")
+
+frame.Visible = false
+
+local function uiOpen()
+	if frame.Visible == false then
+		frame.Visible = true
+	else
+		frame.Visible = false
+	end
+end
+
+for _, button in ipairs(Buttons:GetChildren()) do
+	if button:IsA("ImageButton") then
+		button.MouseButton1Click:Connect(function()
+			BuyItem:FireServer(button.Name)
+		end)
+	end
+end
+
+
+cashUpdate.OnClientEvent:Connect(function(success , cash)
+	if success then
+		CashText.Text = " Cash : " .. cash
+	else
+		CashText.Text = " Not enough cash "
+	end
+end)
+
+OpenButton.MouseButton1Click:Connect(uiOpen)

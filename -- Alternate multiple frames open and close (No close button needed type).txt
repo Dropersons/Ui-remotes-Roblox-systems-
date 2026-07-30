@@ -1,0 +1,38 @@
+
+-- alternate frames open
+
+-- frames
+
+local InventoryFrame = script.Parent:WaitForChild("InventoryFrame")
+local SettingsFrame = script.Parent:WaitForChild("SettingsFrame")
+local ShopFrame = script.Parent:WaitForChild("ShopFrame")
+
+-- buttons
+
+local InventoryButton = script.Parent:WaitForChild("InventroyButton")
+local SettingsButton = script.Parent:WaitForChild("SettingsButton")
+local ShopButton = script.Parent:WaitForChild("ShopButton")
+
+
+InventoryFrame.Visible = false
+SettingsFrame.Visible = false
+ShopFrame.Visible = false
+
+
+InventoryButton.MouseButton1Click:Connect(function()
+	InventoryFrame.Visible = true
+	SettingsFrame.Visible = false
+	ShopFrame.Visible = false
+end)
+
+SettingsButton.MouseButton1Click:Connect(function()
+	InventoryFrame.Visible = false
+	SettingsFrame.Visible = true
+	ShopFrame.Visible = false
+end)
+
+ShopButton.MouseButton1Click:Connect(function()
+	InventoryFrame.Visible = false
+	SettingsFrame.Visible = false
+	ShopFrame.Visible = true
+end)

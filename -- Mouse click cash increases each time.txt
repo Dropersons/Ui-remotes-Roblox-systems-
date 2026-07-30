@@ -1,0 +1,31 @@
+-- Mouse click cash increases each time
+
+Script
+
+local replicatedStorage = game:GetService("ReplicatedStorage")
+local GiveCoins = replicatedStorage:WaitForChild("GiveCoins")
+
+local playerCoins = {}
+
+local function giveCash(player)
+	if not playerCoins[player]  then
+		playerCoins[player] = 0
+	end
+	
+	playerCoins[player] += 10
+	print(player.Name .. "has" .. playerCoins[player] .. "coins")
+end
+
+GiveCoins.OnServerEvent:Connect(function(player)
+	giveCash(player)
+end)
+
+local script
+
+local replicatedStorage = game:GetService("ReplicatedStorage")
+local GiveCoins = replicatedStorage:WaitForChild("GiveCoins")
+local CoinButton = script.Parent:WaitForChild("CoinButton")
+
+CoinButton.MouseButton1Click:Connect(function()
+	GiveCoins:FireServer()
+end)

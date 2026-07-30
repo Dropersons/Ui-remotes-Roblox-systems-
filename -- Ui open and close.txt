@@ -1,0 +1,28 @@
+-- Ui open and close
+
+Script
+
+local replicatedStorage = game:GetService("ReplicatedStorage")
+local ToggleFrame = replicatedStorage:WaitForChild("ToggleFrame")
+local ShopPart = workspace:WaitForChild("ShopPart")
+
+local function toggleUi(hit)
+	local player = game.Players:GetPlayerFromCharacter(hit.Parent)
+	if not player then return end
+	
+	ToggleFrame:FireClient(player)	
+end
+
+ShopPart.Touched:Connect(toggleUi)
+
+local script
+
+local replicatedStorage = game:GetService("ReplicatedStorage")
+local ToggleFrame = replicatedStorage:WaitForChild("ToggleFrame")
+local frame = script.Parent:WaitForChild("Frame")
+
+frame.Visible = false
+
+ToggleFrame.OnClientEvent:Connect(function()
+	frame.Visible = true
+end)

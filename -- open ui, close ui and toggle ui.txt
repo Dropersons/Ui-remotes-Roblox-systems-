@@ -1,0 +1,36 @@
+local frame = script.Parent:WaitForChild("Frame")
+local OpenButton = script.Parent:WaitForChild("OpenButton")
+local CloseButton = script.Parent:WaitForChild("CloseButton")
+local toggleButton = script.Parent:WaitForChild("ToggleButotn")
+
+
+frame.Visible = false
+
+local function openUi()
+	frame.Visible = true
+end
+
+local function closeUi()
+	frame.Visible = false
+end
+
+local function toggleUi()
+	if frame.Visible == true then
+		frame.Visible = false
+	else
+		frame.Visible = true
+	end
+end
+
+OpenButton.MouseButton1Click:Connect(function()
+	openUi()
+end)
+
+CloseButton.MouseButton1Click:Connect(function()
+	closeUi()
+end)
+
+toggleButton.MouseButton1Click:Connect(function()
+	toggleUi()
+end)
+
